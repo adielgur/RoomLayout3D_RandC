@@ -259,7 +259,7 @@ class RoomLayoutEstimator:
                         merged_plane_mask = np.clip(merged_plane_mask + plane_mask2, a_min=0., a_max=1.)
                         are_planes_merged[plane_index2] = True
 
-                        depth_K_dot_coord_masked1 = depth_K_dot_coord_2d[(depth_mask * merged_plane_mask).astype(np.bool)]
+                        depth_K_dot_coord_masked1 = depth_K_dot_coord_2d[(depth_mask * merged_plane_mask).astype(bool)]
 
                         depth_K_dot_coord_sampled = depth_K_dot_coord_masked1
                         ones = np.ones((depth_K_dot_coord_sampled.shape[0], 1))
@@ -382,7 +382,7 @@ class RoomLayoutEstimator:
         # Calculate plane parameters from 3D points of the given plane using RANSAC
         val_plane_indices = valid_layout_ind_dict[plane_type]
         plane_seg_mask_flat = np.sum(plane_seg_flat[val_plane_indices], axis=0)
-        depth_K_dot_coord_masked1 = depth_K_dot_coord[:, (depth_mask_flat[0] * plane_seg_mask_flat).astype(np.bool)]
+        depth_K_dot_coord_masked1 = depth_K_dot_coord[:, (depth_mask_flat[0] * plane_seg_mask_flat).astype(bool)]
 
         depth_K_dot_coord_sampled = depth_K_dot_coord_masked1
         ones = np.ones((1, depth_K_dot_coord_sampled.shape[1]))
@@ -508,13 +508,13 @@ class RoomLayoutEstimator:
 
         plane_mask2_grad_mask = calc_grad_mask(plane_mask2).astype(np.uint8)
         plane_mask2_dist_transf = cv2.distanceTransform(1 - plane_mask2_grad_mask, cv2.DIST_L2, 3)
-        plane_mask2_dist_transf[np.logical_not(plane_mask.astype(np.bool))] = 1e4
+        plane_mask2_dist_transf[np.logical_not(plane_mask.astype(bool))] = 1e4
         plane_mask_point = np.argmin(plane_mask2_dist_transf)
         plane_mask_point = np.unravel_index(plane_mask_point, plane_mask.shape)
 
         plane_mask1_grad_mask = calc_grad_mask(plane_mask).astype(np.uint8)
         plane_mask1_dist_transf = cv2.distanceTransform(1 - plane_mask1_grad_mask, cv2.DIST_L2, 3)
-        plane_mask1_dist_transf[np.logical_not(plane_mask2.astype(np.bool))] = 1e4
+        plane_mask1_dist_transf[np.logical_not(plane_mask2.astype(bool))] = 1e4
         plane_mask2_point = np.argmin(plane_mask1_dist_transf)
         plane_mask2_point = np.unravel_index(plane_mask2_point, plane_mask2.shape)
 
@@ -1450,7 +1450,7 @@ class RoomLayoutEstimator:
         poly_layout_img = np.zeros_like(self.img)
         poly_layout_img[:, :, 1] = poly_edges_mask = self.calc_layout_edges(layout_components,
                                                                             thickness=10)
-        poly_edges_mask = poly_edges_mask.astype(np.bool)
+        poly_edges_mask = poly_edges_mask.astype(bool)
 
         if overlay_color:
             layout_image = poly_edges_mask[:, :, None] * poly_layout_img + self.img
@@ -1506,15 +1506,15 @@ class RoomLayoutEstimator:
         clutter_thresh = 0.04
         layout_mask = \
             np.logical_or(self.layout_seg_mask, np.less((layout_depth - self.depth),
-                                                        layout_depth * clutter_thresh)).astype(np.bool)
+                                                        layout_depth * clutter_thresh)).astype(bool)
 
-        clutter_mask = np.logical_and((1. - self.layout_seg_mask).astype(np.bool),
+        clutter_mask = np.logical_and((1. - self.layout_seg_mask).astype(bool),
                                       np.greater_equal((layout_depth - self.depth_filled),
-                                                       layout_depth * clutter_thresh)).astype(np.bool)
+                                                       layout_depth * clutter_thresh)).astype(bool)
 
         kernel = np.ones((11, 11), np.uint8)
-        clutter_mask = cv2.erode(clutter_mask.astype(np.uint8), kernel, iterations=1).astype(np.bool)
-        layout_mask = cv2.erode(layout_mask.astype(np.uint8), kernel, iterations=1).astype(np.bool)
+        clutter_mask = cv2.erode(clutter_mask.astype(np.uint8), kernel, iterations=1).astype(bool)
+        layout_mask = cv2.erode(layout_mask.astype(np.uint8), kernel, iterations=1).astype(bool)
 
         clutter_image = img
 
